@@ -1,98 +1,192 @@
-import tkinter as tk
-from PIL import Image, ImageTk
 import random
-import time
+import queue
 import threading
+import tkinter as tk
+from pathlib import Path
+
 import pygetwindow as gw
+from PIL import Image, ImageTk
+
 import marcy_ai
+
+
+LARGURA_JANELA = 120
+ALTURA_JANELA = 110
+TAMANHO_SPRITE = 50
+INTERVALO_ATUALIZACAO = 150
+CHANCE_DE_FALA = 0.1
+
 
 class MarcyPet:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Marcy")
-        self.root.geometry("100x100")
+        self.root.geometry(f"{LARGURA_JANELA}x{ALTURA_JANELA}")
         self.root.attributes("-topmost", True)
         self.root.overrideredirect(True)
-        self.root.attributes("-alpha", 0.8)  # Transparente
+        self.root.attributes("-alpha", 0.9)
 
-        self.canvas = tk.Canvas(self.root, width=100, height=100, bg='white', highlightthickness=0)
+        self.canvas = tk.Canvas(
+            self.root,
+            width=LARGURA_JANELA,
+            height=ALTURA_JANELA,
+            bg="white",
+            highlightthickness=0
+        )
         self.canvas.pack()
 
-        self.label = tk.Label(self.root, text="", bg='white', fg='black')
-        self.label.place(x=0, y=80)
+        self.label = tk.Label(
+            self.root,
+            text="",
+            bg="white",
+            fg="black",
+            wraplength=LARGURA_JANELA - 8,
+            justify="center"
+        )
+        self.label.place(x=4, y=72, width=LARGURA_JANELA - 8, height=34)
 
-        self.state = "idle"
+        self.estado = "idle"
         self.x = 100
         self.y = 100
         self.dx = 1
         self.dy = 1
+        self.frame_animacao = 0
+        self.respondendo = False
+        self.fila_respostas = queue.Queue()
 
-        self.images = {}
-        self.load_images()
+        self.imagens = {}
+        self.carregar_imagens()
 
-        self.current_image = self.images.get("idle_1", None)
-        if self.current_image:
-            self.canvas.create_image(50, 50, image=self.current_image)
+        self.sprite = None
+        self.texto_placeholder = None
+        self.imagem_atual = self.imagens.get("idle_1")
 
-        self.root.after(1000, self.update)
+        if self.imagem_atual:
+            self.sprite = self.canvas.create_image(
+                LARGURA_JANELA // 2,
+                36,
+                image=self.imagem_atual
+            )
+        else:
+            self.texto_placeholder = self.canvas.create_text(
+                LARGURA_JANELA // 2,
+                36,
+                text="Marcy",
+                fill="black",
+                font=("Arial", 14, "bold")
+            )
 
-    def load_images(self):
-        # Placeholder: assumir imagens existem, senão usar texto
-        try:
-            self.images["idle_1"] = ImageTk.PhotoImage(Image.open("sprites/idle/idle_1.png").resize((50, 50)))
-            self.images["idle_2"] = ImageTk.PhotoImage(Image.open("sprites/idle/idle_2.png").resize((50, 50)))
-            self.images["walk_1"] = ImageTk.PhotoImage(Image.open("sprites/walk/walk_1.png").resize((50, 50)))
-            self.images["walk_2"] = ImageTk.PhotoImage(Image.open("sprites/walk/walk_2.png").resize((50, 50)))
-        except:
-            pass  # Sem imagens, usar texto
+        self.root.after(INTERVALO_ATUALIZACAO, self.atualizar)
 
-    def update(self):
-        self.move()
-        self.animate()
-        self.react()
-        self.root.after(1000, self.update)
+    def carregar_imagens(self):
+        pasta_base = Path(__file__).resolve().parent
+        sprites = {
+            "idle_1": pasta_base / "sprites" / "idle" / "idle_1.png",
+            "idle_2": pasta_base / "sprites" / "idle" / "idle_2.png",
+            "walk_1": pasta_base / "sprites" / "walk" / "walk_1.png",
+            "walk_2": pasta_base / "sprites" / "walk" / "walk_2.png",
+        }
 
-    def move(self):
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
+        for nome, caminho in sprites.items():
+            try:
+                imagem = Image.open(caminho).resize((TAMANHO_SPRITE, TAMANHO_SPRITE))
+                self.imagens[nome] = ImageTk.PhotoImage(imagem)
+            except Exception:
+                print(f"sprite nao encontrado: {caminho}")
+
+    def atualizar(self):
+        self.mover()
+        self.animar()
+        self.processar_respostas()
+        self.reagir()
+        self.root.after(INTERVALO_ATUALIZACAO, self.atualizar)
+
+    def mover(self):
+        largura_tela = self.root.winfo_screenwidth()
+        altura_tela = self.root.winfo_screenheight()
 
         self.x += self.dx * 10
         self.y += self.dy * 10
 
-        if self.x <= 0 or self.x >= screen_width - 100:
+        if self.x <= 0 or self.x >= largura_tela - LARGURA_JANELA:
             self.dx = -self.dx
-        if self.y <= 0 or self.y >= screen_height - 100:
+
+        if self.y <= 0 or self.y >= altura_tela - ALTURA_JANELA:
             self.dy = -self.dy
 
-        self.root.geometry(f"100x100+{int(self.x)}+{int(self.y)}")
+        self.root.geometry(f"{LARGURA_JANELA}x{ALTURA_JANELA}+{int(self.x)}+{int(self.y)}")
+        self.estado = "walk" if self.dx != 0 or self.dy != 0 else "idle"
 
-    def animate(self):
-        if self.state == "idle":
-            self.current_image = self.images.get("idle_1", None)
-        elif self.state == "walk":
-            self.current_image = self.images.get("walk_1", None)
-        # Adicionar mais estados
+    def animar(self):
+        frames = {
+            "idle": ["idle_1", "idle_2"],
+            "walk": ["walk_1", "walk_2"],
+        }
 
-        if self.current_image:
-            self.canvas.delete("all")
-            self.canvas.create_image(50, 50, image=self.current_image)
+        nomes_frames = frames.get(self.estado, frames["idle"])
+        nome_frame = nomes_frames[self.frame_animacao % len(nomes_frames)]
+        self.frame_animacao += 1
+        self.imagem_atual = self.imagens.get(nome_frame)
 
-    def react(self):
-        app = self.detect_app()
-        if random.random() < 0.1:  # 10% chance de falar
-            texto = marcy_ai.responder("", app)
-            self.label.config(text=texto)
-            self.root.after(3000, lambda: self.label.config(text=""))
+        if self.imagem_atual and self.sprite:
+            self.canvas.itemconfig(self.sprite, image=self.imagem_atual)
+        elif self.texto_placeholder:
+            self.canvas.itemconfig(self.texto_placeholder, text="Marcy")
 
-    def detect_app(self):
-        janela = gw.getActiveWindow()
-        if janela:
-            title = janela.title.lower()
-            if "code" in title:
-                return "Code"
-            elif "chrome" in title:
-                return "Chrome"
+    def reagir(self):
+        if self.respondendo or random.random() >= CHANCE_DE_FALA:
+            return
+
+        app = self.detectar_app()
+        self.respondendo = True
+        thread = threading.Thread(target=self.buscar_resposta, args=(app,), daemon=True)
+        thread.start()
+
+    def buscar_resposta(self, app):
+        resposta = marcy_ai.responder("", app)
+        self.fila_respostas.put(resposta)
+
+    def processar_respostas(self):
+        while not self.fila_respostas.empty():
+            resposta = self.fila_respostas.get()
+            self.mostrar_resposta(resposta)
+
+    def mostrar_resposta(self, resposta):
+        self.label.config(text=resposta)
+        self.root.after(3000, self.limpar_resposta)
+
+    def limpar_resposta(self):
+        self.label.config(text="")
+        self.respondendo = False
+
+    def detectar_app(self):
+        try:
+            janela = gw.getActiveWindow()
+        except Exception:
+            return ""
+
+        if not janela or not janela.title:
+            return ""
+
+        titulo = janela.title.lower()
+
+        if "code" in titulo:
+            return "Code"
+        if "chrome" in titulo:
+            return "Chrome"
+        if "spotify" in titulo:
+            return "Spotify"
+        if "discord" in titulo:
+            return "Discord"
+        if "steam" in titulo:
+            return "Steam"
+        if "youtube" in titulo:
+            return "YouTube"
+        if "github" in titulo:
+            return "GitHub"
+
         return ""
+
 
 if __name__ == "__main__":
     pet = MarcyPet()
