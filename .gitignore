@@ -8,3 +8,5 @@ env/
 *.env
 *.vscode/
 *.log
+.DS_Store
+automacoes.json
