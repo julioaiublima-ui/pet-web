@@ -9,7 +9,7 @@ ARQUIVO_AUTOMACOES = PASTA_PROJETO / "automacoes.json"
 AVISOS_POR_APP = {
     "Code": {
         "segundos": 45 * 60,
-        "mensagem": "Você está no VS Code faz um tempinho. Pausa rápida ou água? 🤓",
+        "mensagem": "Você está no VS Code faz um tempinho. Se tiver erro, cola aqui que eu tento ajudar.",
     },
     "Chrome": {
         "segundos": 35 * 60,

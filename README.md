@@ -59,7 +59,7 @@ ollama pull gemma3:1b
 4. Execute a Marcy:
 
 ```bash
-python marcy_pet.py
+python3 marcy_pet.py
 ```
 
 No macOS, se o Tkinter do Python do sistema falhar ao abrir janela, use o script:

@@ -2,343 +2,607 @@
   "historico": [
     {
       "texto": "",
-      "app": "Code",
-      "resposta": "Ah, Code! Que bom, né? 😊"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Que curioso! 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Hum... 🤔"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Ah, que legal! 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Que bom, Code! 😊"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Ah, é? 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe, hein? 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Hum... 🤔"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Huum... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Que interessante! 😊"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Que bom, então! 😉"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe, querido! 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Hmm... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Ah, que bom! 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Que interessante! 😉"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Hum... 🤔"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Ah, é um código, não é? 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Ainda não, querido. 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Que curioso! 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Hum... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Ah, interessante! 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Hum... 🤔"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Ah, é? 🤔"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Hum... 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Que interessante! 🧐"
-    },
-    {
-      "texto": "",
-      "app": "Code",
-      "resposta": "Observe... 🧐"
+      "app": "",
+      "resposta": "Observei! 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Observe... 🧐"
+      "resposta": "Que bom! 😉",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Observe... 🧐"
+      "resposta": "Haha... só um app. 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Ah, é... 🧐"
+      "resposta": "Observei! 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Observe... 🧐"
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Observe... 🧐"
+      "resposta": "Observei! 😉",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Observe... 🧐"
+      "resposta": "Ah, interessante! 😊",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Observe... 🧐"
+      "resposta": "Haha... hmm.",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Que interessante! 🧐"
+      "resposta": "Observei! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Observo também! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Ah, interessante! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Observei também! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Observei também! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Ah, é? 🤔",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "",
-      "resposta": "Observe... 🧐"
+      "resposta": "Que bom! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Hmm... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Observei também! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Acho que é interessante! 😉",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Ah, é? 🤔",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "E aí! 😉",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Hmm... 🧐"
+      "resposta": "Observei também! 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Hmm... 🧐"
+      "resposta": "Que bom! 😉",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Haha, interessante! 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Ah, que legal! 😊",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Ah, interessante... 🧐"
+      "resposta": "Observei também! 👀",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Hum... 🤔",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Ah, interessante! 😊",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Haha, parece... 🤔",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Eita! 😉",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Observei também! 👀",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Hum... 🧐"
+      "resposta": "Hum... 🤔",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Acho que... 🧐",
+      "contexto": "geral"
     },
     {
       "texto": "",
       "app": "Code",
-      "resposta": "Observe... 🧐"
+      "resposta": "Ah, é legal! 👀",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Observei também! 👀",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Puxa! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Que interessante! 🤔",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "E aí! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Ah, é? 🤔",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Que curioso! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Observei! 👀",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Que interessante! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Observei! 👀",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Que bom, né? 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Hum... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "olá",
+      "app": "",
+      "resposta": "Olá! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "como vc está ?",
+      "app": "",
+      "resposta": "Estou ótima, tentando! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Hm... 🤔",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Observei! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Hum... 🤔",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Que legal! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Estou aqui, pronto! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "É... interessante! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Observei! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "poderia fica pardo um pouco ?",
+      "app": "",
+      "resposta": "Hum... 🤔",
+      "contexto": "geral"
+    },
+    {
+      "texto": "isso é um não ?",
+      "app": "",
+      "resposta": "Não, não. 🙄",
+      "contexto": "geral"
+    },
+    {
+      "texto": "oxe",
+      "app": "",
+      "resposta": "Que coisa! 😉",
+      "contexto": "geral"
+    },
+    {
+      "texto": "quais aplicativos estão abertos ?",
+      "app": "",
+      "resposta": "Nada. 😴",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Observei! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Que interessante! 😉",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Ah, é tão... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Ah, é... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Code... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Observei! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Que curioso! 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Hmm... 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Ah, é... 🤔",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Observei! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "",
+      "resposta": "Observei! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "1+1",
+      "app": "",
+      "resposta": "1 + 1 = 2! 🎉",
+      "contexto": "geral"
+    },
+    {
+      "texto": "17-8+4=x",
+      "app": "",
+      "resposta": "Hmm... 🤔 x? 🧐",
+      "contexto": "geral"
+    },
+    {
+      "texto": "1+1",
+      "app": "",
+      "resposta": "1 + 1 = 2! 😊",
+      "contexto": "geral"
+    },
+    {
+      "texto": "1+1",
+      "app": "",
+      "resposta": "1 + 1 = 2! ✨",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Observei! 🥰",
+      "contexto": "geral"
+    },
+    {
+      "texto": "",
+      "app": "Code",
+      "resposta": "Observei! 🥰",
+      "contexto": "geral"
+    },
+    {
+      "texto": "qual é a diferença entre class e function?",
+      "app": "Code",
+      "resposta": "Em Python, classes...",
+      "contexto": "programacao",
+      "timestamp": null
+    },
+    {
+      "texto": "como resolver esse erro de importação?",
+      "app": "Code",
+      "resposta": "Verifica o caminho...",
+      "contexto": "programacao",
+      "timestamp": null
+    },
+    {
+      "texto": "qual é seu hobby?",
+      "app": "",
+      "resposta": "Amo explorar...",
+      "contexto": "pessoal",
+      "timestamp": null
+    },
+    {
+      "texto": "como fazer um array em python?",
+      "app": "Code",
+      "resposta": "Usa list()...",
+      "contexto": "programacao",
+      "timestamp": null
+    },
+    {
+      "texto": "qual é seu filme favorito?",
+      "app": "",
+      "resposta": "Gosto de ficção...",
+      "contexto": "pessoal",
+      "timestamp": null
+    },
+    {
+      "texto": "qual é a diferença entre class e function?",
+      "app": "Code",
+      "resposta": "Em Python, classes...",
+      "contexto": "programacao",
+      "timestamp": null
+    },
+    {
+      "texto": "como resolver esse erro de importação?",
+      "app": "Code",
+      "resposta": "Verifica o caminho...",
+      "contexto": "programacao",
+      "timestamp": null
+    },
+    {
+      "texto": "qual é seu hobby?",
+      "app": "",
+      "resposta": "Amo explorar...",
+      "contexto": "pessoal",
+      "timestamp": null
+    },
+    {
+      "texto": "como fazer um array em python?",
+      "app": "Code",
+      "resposta": "Usa list()...",
+      "contexto": "programacao",
+      "timestamp": null
+    },
+    {
+      "texto": "qual é seu filme favorito?",
+      "app": "",
+      "resposta": "Gosto de ficção...",
+      "contexto": "pessoal",
+      "timestamp": null
     }
   ]
 }
