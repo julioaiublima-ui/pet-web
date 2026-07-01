@@ -12,6 +12,10 @@ PASTA_PROJETO = Path(__file__).resolve().parent.parent
 ARQUIVO_MEMORIA = PASTA_PROJETO / "memory.json"
 LIMITE_HISTORICO_TOTAL = 200
 LIMITE_CONTEXTO_RAG = 10  # Quantidade de items a recuperar por contexto
+GENERIC_RESPONSES = {
+    "minha cabeça deu uma travadinha... o ollama está aberto? 😵",
+    "hmm... fiquei sem palavras por um segundo 😅",
+}
 
 
 # Temas de contexto para classificação automática
@@ -78,7 +82,7 @@ def carregar_memoria(caminho=ARQUIVO_MEMORIA):
     except (FileNotFoundError, json.JSONDecodeError):
         memoria = {"historico": []}
     
-    if "historico" not in memoria:
+    if "historico" not in memoria or not isinstance(memoria["historico"], list):
         memoria["historico"] = []
     
     # Garante que todos os items têm contexto
@@ -89,9 +93,31 @@ def carregar_memoria(caminho=ARQUIVO_MEMORIA):
     return memoria
 
 
+def _filtrar_historico(historico):
+    """Remove itens vazios, genéricos ou inválidos."""
+    filtrado = []
+    for item in historico:
+        texto = (item.get("texto") or "").strip().lower()
+        resposta = (item.get("resposta") or "").strip()
+
+        if not texto and not resposta:
+            continue
+        if resposta.lower() in GENERIC_RESPONSES and not texto:
+            continue
+        filtrado.append({
+            "texto": texto,
+            "app": item.get("app", ""),
+            "resposta": resposta,
+            "contexto": item.get("contexto", detectar_contexto(texto + " " + resposta)),
+            "timestamp": item.get("timestamp"),
+        })
+    return filtrado
+
+
 def salvar_memoria(memoria, caminho=ARQUIVO_MEMORIA):
     """Salva memória com limite total"""
     if "historico" in memoria:
+        memoria["historico"] = _filtrar_historico(memoria["historico"])
         memoria["historico"] = memoria["historico"][-LIMITE_HISTORICO_TOTAL:]
     
     with open(caminho, "w", encoding="utf-8") as arquivo:
@@ -142,18 +168,28 @@ def montar_contexto_rag(termo_busca="", contexto_atual="geral", limite=5):
     return "\n".join(linhas)
 
 
-def registrar_interacao(texto, app, resposta):
+def registrar_interacao(texto, app, resposta, caminho=ARQUIVO_MEMORIA):
     """Registra interação com contexto automático"""
-    memoria = carregar_memoria()
-    
-    contexto = detectar_contexto(texto + " " + resposta)
-    
+    if not texto and not resposta:
+        return
+
+    resposta_limpa = (resposta or "").strip().lower()
+    if resposta_limpa in GENERIC_RESPONSES and not texto:
+        return
+
+    texto_limpo = (texto or "").strip().lower()
+    if not texto_limpo and not resposta_limpa:
+        return
+
+    memoria = carregar_memoria(caminho)
+    contexto = detectar_contexto(texto_limpo + " " + resposta_limpa)
+
     memoria["historico"].append({
-        "texto": (texto or "").lower(),
+        "texto": texto_limpo,
         "app": app,
-        "resposta": resposta,
+        "resposta": (resposta or "").strip(),
         "contexto": contexto,
         "timestamp": None  # Pode adicionar timestamp se necessário
     })
     
-    salvar_memoria(memoria)
+    salvar_memoria(memoria, caminho)

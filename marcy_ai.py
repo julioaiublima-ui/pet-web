@@ -1,6 +1,5 @@
 from ollama_helper import OllamaErro, chamar_ollama
 from systems.memory_system import (
-    carregar_memoria,
     montar_contexto_rag,
     registrar_interacao,
     detectar_contexto,
@@ -8,7 +7,7 @@ from systems.memory_system import (
 )
 
 
-def montar_prompt(texto, app, memoria):
+def montar_prompt(texto, app):
     texto_usuario = texto.strip() or "O usuário não disse nada; apenas observe o app ativo."
     app_ativo = app or "nenhum app detectado"
     
@@ -49,9 +48,8 @@ def responder(texto, app=""):
     """
     Gera resposta inteligente usando RAG
     """
-    memoria = carregar_memoria()
     texto = texto or ""
-    prompt = montar_prompt(texto, app, memoria)
+    prompt = montar_prompt(texto, app)
 
     try:
         resposta = chamar_ollama(prompt)
@@ -61,6 +59,6 @@ def responder(texto, app=""):
     if not resposta:
         resposta = "Hmm... fiquei sem palavras por um segundo 😅"
 
-    # Registra com contexto automático
-    registrar_interacao(texto, app, resposta)
+    if texto.strip():
+        registrar_interacao(texto, app, resposta)
     return resposta
