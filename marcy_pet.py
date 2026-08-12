@@ -1,9 +1,13 @@
+import math
 import random
 import queue
 import threading
+import time
 import tkinter as tk
 import webbrowser
 from pathlib import Path
+
+from PIL import ImageTk
 
 import marcy_ai
 from systems.animation_system import carregar_imagens, proximo_frame
@@ -12,11 +16,19 @@ from systems.mood_system import AutomacoesMarcy
 
 
 LARGURA_JANELA = 260
-ALTURA_JANELA = 170
+ALTURA_JANELA = 210
 TAMANHO_SPRITE = 50
 INTERVALO_ATUALIZACAO = 150
 CHANCE_DE_FALA = 0.1
+INTERVALO_FALA_ESPONTANEA = 45
+ATRASO_PRIMEIRA_FALA = 20
 TEXTO_PLACEHOLDER = "fale com a Marcy..."
+VELOCIDADE_MINIMA = 1.0
+VELOCIDADE_MAXIMA = 2.5
+INTERVALO_CAMINHADA_MIN = 2.0
+INTERVALO_CAMINHADA_MAX = 4.0
+INTERVALO_DESCANSO_MIN = 3.0
+INTERVALO_DESCANSO_MAX = 6.0
 
 
 class MarcyPet:
@@ -54,17 +66,47 @@ class MarcyPet:
         self.entrada.bind("<FocusIn>", self.limpar_placeholder)
         self.entrada.bind("<FocusOut>", self.restaurar_placeholder)
 
+        self.botao_confirmar = tk.Button(
+            self.root,
+            text="Confirmar",
+            bg="#4EA8DE",
+            fg="white",
+            bd=0,
+            relief="flat",
+            activebackground="#3C8EC4",
+            activeforeground="white",
+            command=lambda: self.confirmar_acao_pendente(True),
+        )
+        self.botao_cancelar = tk.Button(
+            self.root,
+            text="Cancelar",
+            bg="#F0F0F0",
+            fg="#2A2A2A",
+            bd=0,
+            relief="flat",
+            activebackground="#E0E0E0",
+            activeforeground="#2A2A2A",
+            command=lambda: self.confirmar_acao_pendente(False),
+        )
+        self.botao_confirmar.place(x=8, y=170, width=118, height=28)
+        self.botao_cancelar.place(x=134, y=170, width=118, height=28)
+        self.atualizar_botoes_confirmacao()
+
         self.estado = "idle"
         self.x = 100
         self.y = 100
-        self.dx = 1
-        self.dy = 1
+        self.dx = 0
+        self.dy = 0
+        self.velocidade = 0
+        self.movimento_ativo = False
+        self.proximo_tempo_mudanca = time.monotonic() + random.uniform(INTERVALO_DESCANSO_MIN, INTERVALO_DESCANSO_MAX)
         self.frame_animacao = 0
         self.respondendo = False
         self.fila_respostas = queue.Queue()
         self.app_atual = ""
         self.automacoes = AutomacoesMarcy()
         self.limpar_resposta_id = None
+        self.proxima_fala_espontanea = time.monotonic() + ATRASO_PRIMEIRA_FALA
 
         self.imagens = {}
         self.carregar_imagens()
@@ -92,32 +134,61 @@ class MarcyPet:
 
     def carregar_imagens(self):
         pasta_base = Path(__file__).resolve().parent
-        self.imagens = carregar_imagens(pasta_base, TAMANHO_SPRITE)
+        imagens_pil = carregar_imagens(pasta_base, TAMANHO_SPRITE)
+        self.imagens = {
+            nome: ImageTk.PhotoImage(imagem)
+            for nome, imagem in imagens_pil.items()
+        }
 
     def atualizar(self):
         self.app_atual = detectar_app()
-        self.mover()
+        self.atualizar_movimento()
         self.animar()
         self.processar_automacoes()
         self.processar_respostas()
+        self.atualizar_botoes_confirmacao()
         self.reagir(self.app_atual)
         self.root.after(INTERVALO_ATUALIZACAO, self.atualizar)
 
-    def mover(self):
-        largura_tela = self.root.winfo_screenwidth()
-        altura_tela = self.root.winfo_screenheight()
+    def atualizar_movimento(self):
+        agora = time.monotonic()
 
-        self.x += self.dx * 10
-        self.y += self.dy * 10
+        if agora >= self.proximo_tempo_mudanca:
+            self.movimento_ativo = not self.movimento_ativo
+            self.proximo_tempo_mudanca = agora + (
+                random.uniform(INTERVALO_CAMINHADA_MIN, INTERVALO_CAMINHADA_MAX)
+                if self.movimento_ativo
+                else random.uniform(INTERVALO_DESCANSO_MIN, INTERVALO_DESCANSO_MAX)
+            )
 
-        if self.x <= 0 or self.x >= largura_tela - LARGURA_JANELA:
-            self.dx = -self.dx
+            if self.movimento_ativo:
+                angulo = random.uniform(0, 2 * 3.141592653589793)
+                self.dx = math.cos(angulo)
+                self.dy = math.sin(angulo)
+                self.velocidade = random.uniform(VELOCIDADE_MINIMA, VELOCIDADE_MAXIMA)
+            else:
+                self.dx = 0
+                self.dy = 0
+                self.velocidade = 0
 
-        if self.y <= 0 or self.y >= altura_tela - ALTURA_JANELA:
-            self.dy = -self.dy
+        if self.movimento_ativo:
+            largura_tela = self.root.winfo_screenwidth()
+            altura_tela = self.root.winfo_screenheight()
 
-        self.root.geometry(f"{LARGURA_JANELA}x{ALTURA_JANELA}+{int(self.x)}+{int(self.y)}")
-        self.estado = "walk" if self.dx != 0 or self.dy != 0 else "idle"
+            self.x += self.dx * self.velocidade
+            self.y += self.dy * self.velocidade
+
+            if self.x <= 0 or self.x >= largura_tela - LARGURA_JANELA:
+                self.dx = -self.dx
+                self.x = max(0, min(self.x, largura_tela - LARGURA_JANELA))
+
+            if self.y <= 0 or self.y >= altura_tela - ALTURA_JANELA:
+                self.dy = -self.dy
+                self.y = max(0, min(self.y, altura_tela - ALTURA_JANELA))
+
+            self.root.geometry(f"{LARGURA_JANELA}x{ALTURA_JANELA}+{int(self.x)}+{int(self.y)}")
+
+        self.estado = "walk" if self.movimento_ativo else "idle"
 
     def animar(self):
         nome_frame = proximo_frame(self.estado, self.frame_animacao)
@@ -130,7 +201,16 @@ class MarcyPet:
             self.canvas.itemconfig(self.texto_placeholder, text="Marcy")
 
     def reagir(self, app):
-        if self.respondendo or random.random() >= CHANCE_DE_FALA:
+        if self.respondendo:
+            return
+
+        agora = time.monotonic()
+        if agora < self.proxima_fala_espontanea:
+            return
+
+        self.proxima_fala_espontanea = agora + INTERVALO_FALA_ESPONTANEA
+
+        if random.random() >= CHANCE_DE_FALA:
             return
 
         self.respondendo = True
@@ -138,7 +218,10 @@ class MarcyPet:
         thread.start()
 
     def buscar_resposta(self, app, texto=""):
-        resposta = marcy_ai.responder(texto, app)
+        try:
+            resposta = marcy_ai.responder(texto, app)
+        except Exception:
+            resposta = "Tive um probleminha para responder agora. Tente de novo em instantes."
         self.fila_respostas.put(resposta)
 
     def processar_automacoes(self):
@@ -149,6 +232,29 @@ class MarcyPet:
         while not self.fila_respostas.empty():
             resposta = self.fila_respostas.get()
             self.mostrar_resposta(resposta)
+
+    def atualizar_botoes_confirmacao(self):
+        pendente = self.automacoes.tem_acao_pendente()
+        if pendente:
+            self.botao_confirmar.place(x=8, y=170, width=118, height=28)
+            self.botao_cancelar.place(x=134, y=170, width=118, height=28)
+        else:
+            self.botao_confirmar.place_forget()
+            self.botao_cancelar.place_forget()
+
+    def confirmar_acao_pendente(self, confirmar):
+        if not self.automacoes.tem_acao_pendente():
+            self.atualizar_botoes_confirmacao()
+            return
+
+        texto = "sim" if confirmar else "nao"
+        resultado = self.automacoes.executar_comando(texto, self.app_atual)
+        self.mostrar_resposta(resultado["mensagem"])
+        self.atualizar_botoes_confirmacao()
+        self.entrada.delete(0, tk.END)
+        self.entrada.insert(0, TEXTO_PLACEHOLDER)
+        self.entrada.config(fg="gray30")
+        self.executar_acao(resultado.get("acao"))
 
     def enviar_comando(self, evento=None):
         texto = self.entrada.get().strip()
@@ -161,6 +267,15 @@ class MarcyPet:
 
         if resultado["entendido"]:
             self.mostrar_resposta(resultado["mensagem"])
+
+            if self.automacoes.tem_acao_pendente():
+                self.entrada.focus_set()
+                self.entrada.delete(0, tk.END)
+                self.entrada.insert(0, "Responda sim ou não")
+                self.entrada.config(fg="gray30")
+                self.atualizar_botoes_confirmacao()
+                return
+
             self.executar_acao(resultado.get("acao"))
             return
 

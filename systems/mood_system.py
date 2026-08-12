@@ -59,7 +59,19 @@ class AutomacoesMarcy:
         except (FileNotFoundError, json.JSONDecodeError):
             dados = {}
 
-        return self.mesclar_dados(padrao, dados)
+        if not isinstance(dados, dict):
+            dados = {}
+
+        dados_completos = self.mesclar_dados(padrao, dados)
+
+        # normalize older formats where acao_pendente could be a simple dict
+        acao = dados_completos.get("acao_pendente")
+        if isinstance(acao, dict) and acao and "criada_em" not in acao:
+            from datetime import datetime
+
+            acao["criada_em"] = datetime.now().isoformat(timespec="seconds")
+
+        return dados_completos
 
     def mesclar_dados(self, padrao, dados):
         resultado = padrao.copy()
@@ -125,23 +137,77 @@ class AutomacoesMarcy:
 
         return self.resposta(False, "")
 
+    def tem_acao_pendente(self):
+        acao = self.dados.get("acao_pendente")
+        if not acao:
+            return False
+
+        if not isinstance(acao, dict):
+            self.dados["acao_pendente"] = None
+            self.salvar_dados()
+            return False
+
+        return True
+
+    def criar_acao_pendente(self, tipo, **kwargs):
+        acao = {"tipo": tipo, "criada_em": datetime.now().isoformat(timespec="seconds")}
+        acao.update(kwargs)
+        self.dados["acao_pendente"] = acao
+        self.salvar_dados()
+        return acao
+
+    def validar_url(self, url):
+        if not isinstance(url, str):
+            return False
+        url = url.strip()
+        if not url:
+            return False
+        if not url.startswith(("http://", "https://")):
+            url = f"https://{url}"
+        if any(token in url.lower() for token in ("javascript:", "data:", "vbscript:")):
+            return False
+        return True
+
+    def confirmar_acao_pendente(self, confirmar):
+        acao = self.dados.get("acao_pendente")
+        if not acao:
+            return self.resposta(False, "Não há ação pendente.")
+
+        criada = acao.get("criada_em")
+        if criada:
+            try:
+                quando = datetime.fromisoformat(criada)
+                if datetime.now() - quando > timedelta(minutes=5):
+                    self.dados["acao_pendente"] = None
+                    self.salvar_dados()
+                    return self.resposta(True, "A solicitação expirou. Pode repetir o comando se quiser.")
+            except ValueError:
+                pass
+
+        self.dados["acao_pendente"] = None
+        self.salvar_dados()
+
+        if not confirmar:
+            return self.resposta(True, "Beleza, não vou abrir nada.")
+
+        if acao.get("tipo") == "abrir_url":
+            url = acao.get("url", "")
+            if not self.validar_url(url):
+                return self.resposta(False, "URL inválida para abertura segura.")
+            return self.resposta(True, f"Abrindo {url}", acao)
+
+        return self.resposta(False, "Tipo de ação não suportado.")
+
     def responder_acao_pendente(self, texto):
         acao = self.dados.get("acao_pendente")
         if not acao:
             return None
 
         if texto in ("sim", "s", "pode", "confirmar", "confirma"):
-            self.dados["acao_pendente"] = None
-            self.salvar_dados()
-
-            if acao.get("tipo") == "abrir_url":
-                url = acao.get("url", "")
-                return self.resposta(True, f"Abrindo {url}", acao)
+            return self.confirmar_acao_pendente(True)
 
         if texto in ("nao", "não", "n", "cancelar"):
-            self.dados["acao_pendente"] = None
-            self.salvar_dados()
-            return self.resposta(True, "Beleza, não vou abrir nada.")
+            return self.confirmar_acao_pendente(False)
 
         return None
 
@@ -232,11 +298,11 @@ class AutomacoesMarcy:
         if not url.startswith(("http://", "https://")):
             url = f"https://{url}"
 
-        acao = {"tipo": "abrir_url", "url": url}
-        self.dados["acao_pendente"] = acao
-        self.salvar_dados()
+        if not self.validar_url(url):
+            return self.resposta(False, "URL inválida para abertura segura.")
 
-        return self.resposta(True, f"Quer que eu abra {url}? Responda sim ou não.")
+        acao = self.criar_acao_pendente("abrir_url", url=url)
+        return self.resposta(True, f"Quer que eu abra {url}? Responda sim ou não.", acao, aguarda_confirmacao=True)
 
     def verificar_eventos(self, app=""):
         mensagens = []
@@ -371,9 +437,10 @@ class AutomacoesMarcy:
 
         return f"{quantidade} {nome}"
 
-    def resposta(self, entendido, mensagem, acao=None):
+    def resposta(self, entendido, mensagem, acao=None, aguarda_confirmacao=False):
         return {
             "entendido": entendido,
             "mensagem": mensagem,
             "acao": acao,
+            "aguarda_confirmacao": aguarda_confirmacao or self.tem_acao_pendente(),
         }

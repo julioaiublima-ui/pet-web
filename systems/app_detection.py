@@ -31,5 +31,9 @@ def obter_titulo_janela_ativa():
     if not janela:
         return ""
 
-    titulo = janela.title() if callable(janela.title) else janela.title
+    try:
+        titulo = janela.title() if callable(janela.title) else janela.title
+    except Exception:
+        return ""
+
     return titulo.lower() if titulo else ""

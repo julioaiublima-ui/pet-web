@@ -33,6 +33,7 @@ pet-web/
 ├── systems/
 │   ├── app_detection.py
 │   ├── memory_system.py
+│   ├── rag_system.py
 │   ├── mood_system.py
 │   └── animation_system.py
 │
@@ -59,7 +60,7 @@ ollama pull gemma3:1b
 4. Execute a Marcy:
 
 ```bash
-python marcy_pet.py
+python3 marcy_pet.py
 ```
 
 No macOS, se o Tkinter do Python do sistema falhar ao abrir janela, use o script:
@@ -99,6 +100,7 @@ Quando um comando nao e reconhecido como automacao, ele e enviado para o Ollama 
 - `assets/ui/`: espaco para imagens e elementos visuais da interface.
 - `systems/app_detection.py`: deteccao do app ativo.
 - `systems/memory_system.py`: leitura, escrita e formatacao da memoria.
+- `systems/rag_system.py`: recuperacao modular de memorias relevantes, pontuacao e montagem de contexto.
 - `systems/mood_system.py`: comandos, lembretes, Pomodoro, regras por app ativo e acoes confirmadas.
 - `systems/animation_system.py`: carregamento de sprites e selecao de frames.
 
@@ -126,6 +128,7 @@ Quando um comando nao e reconhecido como automacao, ele e enviado para o Ollama 
 - Ajustada a chamada ao Ollama para rodar em thread e nao travar a janela.
 - Criado `ollama_helper.py` para concentrar a chamada para a API do Ollama.
 - Separado o sistema de memoria em `systems/memory_system.py`.
+- Modularizado o RAG em `systems/rag_system.py`, com configuracao independente de `top_k`, score minimo e pesos de relevancia.
 
 ### Execucao no macOS
 
