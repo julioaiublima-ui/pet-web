@@ -1,5 +1,6 @@
 import json
 import re
+import unicodedata
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -25,6 +26,37 @@ AVISOS_POR_APP = {
     },
 }
 INTERVALO_REPETIR_AVISO = 30 * 60
+COMANDOS_CONFIRMACAO = ("sim", "s", "pode", "confirmar", "confirma", "ok", "executar", "executa")
+COMANDOS_CANCELAMENTO = ("nao", "n", "cancelar", "cancela", "melhor nao")
+APLICATIVOS_CONHECIDOS = {
+    "chrome": "Google Chrome",
+    "google chrome": "Google Chrome",
+    "safari": "Safari",
+    "code": "Visual Studio Code",
+    "vscode": "Visual Studio Code",
+    "vs code": "Visual Studio Code",
+    "discord": "Discord",
+    "spotify": "Spotify",
+    "terminal": "Terminal",
+    "finder": "Finder",
+}
+ATALHOS_NAVEGACAO = {
+    "nova_aba": ("nova aba", "abrir nova aba"),
+    "fechar_aba": ("fechar aba", "fechar guia"),
+    "recarregar": ("recarregar pagina", "atualizar pagina", "recarregar"),
+    "proxima_aba": ("proxima aba", "proxima guia", "ir para proxima aba"),
+    "aba_anterior": ("aba anterior", "guia anterior", "ir para aba anterior"),
+}
+TECLAS_COMANDO = {
+    "enter": "enter",
+    "tab": "tab",
+    "esc": "esc",
+    "escape": "esc",
+    "espaco": "space",
+    "space": "space",
+    "backspace": "backspace",
+    "delete": "delete",
+}
 
 
 class AutomacoesMarcy:
@@ -78,7 +110,7 @@ class AutomacoesMarcy:
 
     def executar_comando(self, texto, app=""):
         texto_original = texto.strip()
-        texto_normalizado = texto_original.lower()
+        texto_normalizado = self.normalizar_texto(texto_original)
 
         if not texto_original:
             return self.resposta(False, "")
@@ -116,7 +148,11 @@ class AutomacoesMarcy:
         if pomodoro:
             return pomodoro
 
-        abertura = self.tentar_preparar_abertura(texto_original)
+        automacao_ui = self.tentar_preparar_automacao_ui(texto_original, texto_normalizado)
+        if automacao_ui:
+            return automacao_ui
+
+        abertura = self.tentar_preparar_abertura(texto_original, texto_normalizado)
         if abertura:
             return abertura
 
@@ -130,18 +166,17 @@ class AutomacoesMarcy:
         if not acao:
             return None
 
-        if texto in ("sim", "s", "pode", "confirmar", "confirma"):
+        if texto in COMANDOS_CONFIRMACAO:
             self.dados["acao_pendente"] = None
             self.salvar_dados()
 
-            if acao.get("tipo") == "abrir_url":
-                url = acao.get("url", "")
-                return self.resposta(True, f"Abrindo {url}", acao)
+            mensagem = acao.get("mensagem_confirmada") or f"Ok, vou {self.descrever_acao(acao)}."
+            return self.resposta(True, mensagem, acao)
 
-        if texto in ("nao", "não", "n", "cancelar"):
+        if texto in COMANDOS_CANCELAMENTO:
             self.dados["acao_pendente"] = None
             self.salvar_dados()
-            return self.resposta(True, "Beleza, não vou abrir nada.")
+            return self.resposta(True, "Beleza, não vou fazer isso.")
 
         return None
 
@@ -212,31 +247,194 @@ class AutomacoesMarcy:
 
         return self.resposta(True, f"Pomodoro de {self.texto_tempo(minutos, 'minutos')} iniciado. Modo foco!")
 
-    def tentar_preparar_abertura(self, texto):
+    def tentar_preparar_automacao_ui(self, texto_original, texto_normalizado):
+        for tentativa in (
+            self.tentar_preparar_atalho,
+            self.tentar_preparar_tecla,
+            self.tentar_preparar_clique,
+            self.tentar_preparar_digitacao,
+        ):
+            resultado = tentativa(texto_original, texto_normalizado)
+            if resultado:
+                return resultado
+
+        return None
+
+    def tentar_preparar_atalho(self, _texto_original, texto_normalizado):
+        for nome_atalho, frases in ATALHOS_NAVEGACAO.items():
+            if texto_normalizado in frases:
+                acao = {"tipo": "atalho", "atalho": nome_atalho}
+                return self.preparar_acao(
+                    acao,
+                    f"Quer que eu execute: {self.descrever_acao(acao)}? Responda sim ou não.",
+                    f"Ok, vou executar: {self.descrever_acao(acao)}.",
+                )
+
+        return None
+
+    def tentar_preparar_tecla(self, _texto_original, texto_normalizado):
+        resultado = re.search(r"\bpressionar\s+([a-z]+)\b", texto_normalizado)
+        if not resultado:
+            return None
+
+        tecla = TECLAS_COMANDO.get(resultado.group(1))
+        if not tecla:
+            return self.resposta(True, "Essa tecla ainda não está liberada para automação.")
+
+        acao = {"tipo": "pressionar", "tecla": tecla}
+        return self.preparar_acao(
+            acao,
+            f"Quer que eu pressione {tecla}? Responda sim ou não.",
+            f"Ok, vou pressionar {tecla}.",
+        )
+
+    def tentar_preparar_clique(self, _texto_original, texto_normalizado):
+        resultado = re.search(
+            r"\b(?:clicar|clique)\s+(?:em\s+)?(-?\d{1,5})\s*(?:,|\s)\s*(-?\d{1,5})\b",
+            texto_normalizado,
+        )
+
+        if resultado:
+            x = int(resultado.group(1))
+            y = int(resultado.group(2))
+
+            if x < 0 or y < 0:
+                return self.resposta(True, "Consigo clicar só em coordenadas positivas da tela.")
+
+            acao = {"tipo": "clicar", "x": x, "y": y}
+            return self.preparar_acao(
+                acao,
+                f"Quer que eu clique em ({x}, {y})? Responda sim ou não.",
+                f"Ok, vou clicar em ({x}, {y}).",
+            )
+
+        if re.search(r"\b(?:clicar|clique)\b", texto_normalizado):
+            return self.resposta(
+                True,
+                "Ainda não reconheço botões pelo nome. Posso clicar por coordenadas, tipo: clicar em 450, 300.",
+            )
+
+        return None
+
+    def tentar_preparar_digitacao(self, texto_original, _texto_normalizado):
+        resultado = re.search(
+            r"\b(?:digitar|escrever na tela|preencher campo com)\s+(.+)",
+            texto_original,
+            re.IGNORECASE,
+        )
+        if not resultado:
+            return None
+
+        texto = resultado.group(1).strip().strip("\"'")
+        if not texto:
+            return self.resposta(True, "Me diga qual texto você quer que eu digite.")
+
+        if len(texto) > 500:
+            return self.resposta(True, "Esse texto está grande demais para eu digitar com segurança.")
+
+        acao = {"tipo": "digitar", "texto": texto}
+        return self.preparar_acao(
+            acao,
+            f"Quer que eu digite: {texto}? Responda sim ou não.",
+            "Ok, vou digitar o texto confirmado.",
+        )
+
+    def tentar_preparar_abertura(self, texto, texto_normalizado):
         resultado = re.search(r"\babrir\s+(.+)", texto, re.IGNORECASE)
         if not resultado:
             return None
 
-        destino = resultado.group(1).strip().lower()
+        destino_original = resultado.group(1).strip()
+        destino = texto_normalizado.split("abrir", 1)[1].strip()
+        tipo_forcado = ""
+
+        for prefixo, tipo in (
+            ("app ", "app"),
+            ("aplicativo ", "app"),
+            ("site ", "site"),
+            ("pagina ", "site"),
+        ):
+            if destino.startswith(prefixo):
+                destino = destino[len(prefixo):].strip()
+                destino_original = destino_original[len(prefixo):].strip()
+                tipo_forcado = tipo
+                break
+
         atalhos = {
             "github": "https://github.com",
             "youtube": "https://youtube.com",
             "google": "https://google.com",
             "ollama": "https://ollama.com",
         }
-        url = atalhos.get(destino, destino)
 
+        if tipo_forcado != "app" and destino in atalhos:
+            return self.preparar_abertura_url(atalhos[destino])
+
+        if tipo_forcado != "site" and destino in APLICATIVOS_CONHECIDOS:
+            app_nome = APLICATIVOS_CONHECIDOS[destino]
+            acao = {"tipo": "abrir_app", "app": app_nome}
+            return self.preparar_acao(
+                acao,
+                f"Quer que eu abra o app {app_nome}? Responda sim ou não.",
+                f"Ok, vou abrir {app_nome}.",
+            )
+
+        url = destino_original
         if "." not in url and not url.startswith(("http://", "https://")):
-            return self.resposta(True, "Consigo abrir sites. Me diga algo tipo: abrir github.com")
+            return self.resposta(
+                True,
+                "Consigo abrir sites ou apps conhecidos. Exemplos: abrir github.com; abrir chrome.",
+            )
 
+        if " " in url:
+            return self.resposta(True, "Esse endereço parece ter espaços. Me manda só a URL certinha.")
+
+        return self.preparar_abertura_url(url)
+
+    def preparar_abertura_url(self, url):
         if not url.startswith(("http://", "https://")):
             url = f"https://{url}"
 
         acao = {"tipo": "abrir_url", "url": url}
+        return self.preparar_acao(
+            acao,
+            f"Quer que eu abra {url}? Responda sim ou não.",
+            f"Abrindo {url}",
+        )
+
+    def preparar_acao(self, acao, pergunta, mensagem_confirmada):
+        acao = dict(acao)
+        acao["descricao"] = self.descrever_acao(acao)
+        acao["mensagem_confirmada"] = mensagem_confirmada
         self.dados["acao_pendente"] = acao
         self.salvar_dados()
 
-        return self.resposta(True, f"Quer que eu abra {url}? Responda sim ou não.")
+        return self.resposta(True, pergunta)
+
+    def descrever_acao(self, acao):
+        tipo = acao.get("tipo")
+
+        if tipo == "abrir_url":
+            return f"abrir {acao.get('url', '')}"
+        if tipo == "abrir_app":
+            return f"abrir {acao.get('app', '')}"
+        if tipo == "clicar":
+            return f"clicar em ({acao.get('x')}, {acao.get('y')})"
+        if tipo == "digitar":
+            return "digitar texto"
+        if tipo == "pressionar":
+            return f"pressionar {acao.get('tecla', '')}"
+        if tipo == "atalho":
+            nomes = {
+                "nova_aba": "abrir nova aba",
+                "fechar_aba": "fechar aba",
+                "recarregar": "recarregar página",
+                "proxima_aba": "ir para a próxima aba",
+                "aba_anterior": "ir para a aba anterior",
+            }
+            return nomes.get(acao.get("atalho"), "executar atalho")
+
+        return "executar ação"
 
     def verificar_eventos(self, app=""):
         mensagens = []
@@ -347,7 +545,8 @@ class AutomacoesMarcy:
     def texto_ajuda(self):
         return (
             "Comandos: lembrar de beber água em 10 minutos; "
-            "pomodoro 25; status; pausar automações; abrir github.com; fechar."
+            "pomodoro 25; status; pausar automações; abrir github.com; "
+            "abrir chrome; nova aba; clicar em 450, 300; digitar oi; fechar."
         )
 
     def ler_data(self, valor):
@@ -358,6 +557,11 @@ class AutomacoesMarcy:
             return datetime.fromisoformat(valor)
         except ValueError:
             return None
+
+    def normalizar_texto(self, texto):
+        texto = texto.strip().lower()
+        texto = unicodedata.normalize("NFD", texto)
+        return "".join(caractere for caractere in texto if unicodedata.category(caractere) != "Mn")
 
     def texto_tempo(self, quantidade, unidade):
         unidade = unidade.lower()

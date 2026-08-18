@@ -24,6 +24,12 @@ wheels/
 venv/
 ENV/
 env/
+.venv-jarvis/
+
+# Local credentials
+.env
+.env.local
+!.env.example
 
 # IDE
 .vscode/
@@ -42,3 +48,8 @@ htmlcov/
 
 # Logs
 *.log
+
+# Jarvis/Browser Use local runtime data
+.jarvis_chrome_profile/
+traces/
+console-recordings/

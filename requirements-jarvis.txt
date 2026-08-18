@@ -1,0 +1,7 @@
+python-dotenv>=1.0.1
+livekit-agents[openai]~=1.5
+browser-use
+langchain-openai
+playwright
+selenium
+pydantic>=2
