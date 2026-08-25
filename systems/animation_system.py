@@ -1,44 +1,23 @@
 from PIL import Image, ImageDraw
 
 
-ANIMACOES = {
-    "idle_normal": {
-        "pasta": "idle",
-        "frames": ["idle_1", "idle_2", "idle_3", "idle_4"],
-    },
-    "idle_glasses": {
-        "pasta": "idle",
-        "frames": ["idle_glasses_1", "idle_glasses_2", "idle_glasses_3"],
-    },
-    "idle_curious": {
-        "pasta": "idle",
-        "frames": ["idle_look_left_1", "idle_look_left_2", "idle_look_right_1", "idle_look_right_2"],
-    },
-    "idle_thinking": {
-        "pasta": "idle",
-        "frames": ["idle_thinking_1", "idle_thinking_2"],
-    },
-    "idle_smile": {
-        "pasta": "idle",
-        "frames": ["idle_smile_1", "idle_smile_2"],
-    },
-    "walk": {
-        "pasta": "walk",
-        "frames": ["walk_1", "walk_2"],
-    },
-    "talking": {
-        "pasta": "talking",
-        "frames": ["talking_1", "talking_2"],
-    },
-    "thinking": {
-        "pasta": "thinking",
-        "frames": ["thinking_1", "thinking_2"],
-    },
-    "observing": {
-        "pasta": "observing",
-        "frames": ["observing_1", "observing_2"],
-    },
+SPRITES_POR_ESTADO = {
+    "idle": ["idle_1", "idle_2"],
+    "walk": ["walk_1", "walk_2"],
+    "talking": ["talking_1", "talking_2"],
+    "thinking": ["thinking_1", "thinking_2"],
+    "observing": ["observing_1", "observing_2"],
+    "walk_direita": [],
+    "walk_esquerda": [],
 }
+
+_FRAMES_ATUAIS = {estado: list(nomes) for estado, nomes in SPRITES_POR_ESTADO.items()}
+_DURACOES_ATUAIS = {}
+
+
+def _recortar_frame_duplicado(frame):
+    # Os GIFs atuais já contêm uma personagem inteira por frame.
+    return frame
 
 
 def _criar_sprite_placeholder_imagem(estado, tamanho_sprite):
@@ -65,30 +44,100 @@ def _criar_sprite_placeholder_imagem(estado, tamanho_sprite):
 
 
 def carregar_imagens(pasta_base, tamanho_sprite):
+    global _FRAMES_ATUAIS
+    global _DURACOES_ATUAIS
+
     imagens = {}
+    _FRAMES_ATUAIS = {}
+    _DURACOES_ATUAIS = {}
 
-    for animacao in ANIMACOES.values():
-        pasta = animacao["pasta"]
+    for estado, nomes in SPRITES_POR_ESTADO.items():
+        if estado == "walk":
+            continue
 
-        for nome in animacao["frames"]:
-            caminho = pasta_base / "sprites" / pasta / f"{nome}.png"
+        frames_estado = []
+        duracoes_estado = []
+        estado_arquivo = estado
+        if estado in ("walk_direita", "walk_esquerda"):
+            estado_arquivo = "walk"
 
+        caminhos_gif = [pasta_base / "sprites" / estado_arquivo / f"{estado_arquivo}.gif"]
+        if estado == "walk_direita":
+            caminhos_gif = [
+                pasta_base / "sprites" / estado_arquivo / "walk-direita.gif",
+                *caminhos_gif,
+            ]
+        elif estado == "walk_esquerda":
+            caminhos_gif = [
+                pasta_base / "sprites" / estado_arquivo / "walk-esquerda.gif",
+                *caminhos_gif,
+            ]
+
+        caminho_gif = next(
+            (caminho for caminho in caminhos_gif if caminho.exists() and caminho.stat().st_size > 0),
+            caminhos_gif[0],
+        )
+
+        if caminho_gif.exists() and caminho_gif.stat().st_size > 0:
             try:
-                if not caminho.exists() or caminho.stat().st_size == 0:
-                    raise FileNotFoundError(caminho)
+                with Image.open(caminho_gif) as gif:
+                    indice = 0
+                    while True:
+                        frame = _recortar_frame_duplicado(gif.convert("RGBA"))
+                        frame.thumbnail((tamanho_sprite, tamanho_sprite), Image.Resampling.LANCZOS)
+                        nome = f"{estado}_{indice + 1}"
+                        imagens[nome] = frame.copy()
+                        frames_estado.append(nome)
+                        duracoes_estado.append(max(40, gif.info.get("duration") or 100))
+                        indice += 1
+                        try:
+                            gif.seek(indice)
+                        except EOFError:
+                            break
+            except Exception as erro:
+                print(f"gif nao encontrado: {caminho_gif} ({erro})")
 
-                imagem = Image.open(caminho).convert("RGBA")
-                imagem = imagem.resize((tamanho_sprite, tamanho_sprite))
-                imagens[nome] = imagem
-            except Exception:
+        if not frames_estado:
+            for nome in nomes:
+                nome_com_hifen = nome.replace("_", "-")
+                caminhos = [
+                    pasta_base / "sprites" / estado / f"{nome_com_hifen}.gif",
+                    pasta_base / "sprites" / estado / f"{nome}.gif",
+                ]
+
                 try:
-                    imagens[nome] = _criar_sprite_placeholder_imagem(pasta, tamanho_sprite)
-                except Exception as erro:
-                    print(f"sprite nao encontrado: {caminho} ({erro})")
+                    caminho = next(
+                        caminho
+                        for caminho in caminhos
+                        if caminho.exists() and caminho.stat().st_size > 0
+                    )
+
+                    imagem = _recortar_frame_duplicado(Image.open(caminho).convert("RGBA"))
+                    imagem.thumbnail((tamanho_sprite, tamanho_sprite), Image.Resampling.LANCZOS)
+                    imagens[nome] = imagem
+                    duracoes_estado.append(100)
+                except Exception:
+                    try:
+                        imagens[nome] = _criar_sprite_placeholder_imagem(estado, tamanho_sprite)
+                    except Exception as erro:
+                        print(f"sprite nao encontrado: {caminho} ({erro})")
+
+                frames_estado.append(nome)
+
+        _FRAMES_ATUAIS[estado] = frames_estado
+        _DURACOES_ATUAIS[estado] = duracoes_estado
+
+    _FRAMES_ATUAIS["walk"] = _FRAMES_ATUAIS.get("walk_direita", [])
+    _DURACOES_ATUAIS["walk"] = _DURACOES_ATUAIS.get("walk_direita", [])
 
     return imagens
 
 
-def proximo_frame(animacao, frame_animacao):
-    nomes = ANIMACOES.get(animacao, ANIMACOES["idle_normal"])["frames"]
+def proximo_frame(estado, frame_animacao):
+    nomes = _FRAMES_ATUAIS.get(estado) or _FRAMES_ATUAIS.get("idle") or SPRITES_POR_ESTADO["idle"]
     return nomes[frame_animacao % len(nomes)]
+
+
+def duracao_frame(estado, frame_animacao):
+    duracoes = _DURACOES_ATUAIS.get(estado) or _DURACOES_ATUAIS.get("idle") or [100]
+    return duracoes[frame_animacao % len(duracoes)]

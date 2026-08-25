@@ -22,8 +22,8 @@ Desktop pet da Marcy Wu (Amphibia). Uma personagem que anda pela tela, anima, fa
 - Memória persistida em JSON (`carregar_memoria` / `salvar_memoria`)
 
 ## Estados do Pet
-- `idle` — parado, sprites `idle_1.png`, `idle_2.png`
-- `walk` — andando, sprites `walk_1.png`, `walk_2.png`
+- `idle` — parado, animação `sprites/idle/idle.gif`
+- `walk` — andando, animações `sprites/walk/walk-direita.gif` e `sprites/walk/walk-esquerda.gif`
 - Outros: `talking`, `thinking`, `observing` (emotions/)
 
 ## Padrões

@@ -1,3 +1,4 @@
+Este script usa `uv` com Python 3.13 e instala as dependencias temporarias `pillow`, `pygetwindow`, `pyautogui` e `pyobjc-framework-Quartz`, porque o Python da Apple pode apresentar erro ao criar janelas Tkinter.
 # Marcy Desktop Companion
 
 Uma personagem desktop leve baseada na Marcy Wu, de Amphibia. A Marcy anda pela tela, anima, observa o aplicativo ativo e responde usando uma IA local com Ollama.
@@ -68,6 +69,12 @@ No macOS, se o Tkinter do Python do sistema falhar ao abrir janela, use o script
 ./run_marcy.sh
 ```
 
+Por padrao, a janela usa um fundo claro normal porque algumas versoes do Tk no macOS exibem `systemTransparent` como um retangulo preto. A transparencia experimental pode ser testada com:
+
+```bash
+MARCY_TRANSPARENTE=1 ./run_marcy.sh
+```
+
 Esse script usa `uv` com Python 3.13 e instala as dependencias temporarias `pillow`, `pygetwindow` e `pyobjc-framework-Quartz`, porque o Python da Apple pode apresentar erro ao criar janelas Tkinter.
 
 ## Automacoes interativas
@@ -86,6 +93,8 @@ fechar
 
 Quando um comando nao e reconhecido como automacao, ele e enviado para o Ollama e a Marcy responde como conversa normal.
 
+Para conversar, clique no campo `fale com a Marcy...`, escreva a mensagem e pressione Enter. O Ollama precisa estar aberto para gerar a resposta.
+
 ## Arquivos principais
 
 - `marcy_pet.py`: janela Tkinter, movimento, animacao, fala e deteccao de apps.
@@ -102,13 +111,28 @@ Quando um comando nao e reconhecido como automacao, ele e enviado para o Ollama 
 - `systems/mood_system.py`: comandos, lembretes, Pomodoro, regras por app ativo e acoes confirmadas.
 - `systems/animation_system.py`: carregamento de sprites e selecao de frames.
 
+## Sprites PNG ou GIF
+
+Cada estado pode usar um GIF animado com o mesmo nome do estado. Por exemplo:
+
+```text
+sprites/
+├── idle/idle.gif
+├── walk/walk.gif
+├── talking/talking.gif
+├── thinking/thinking.gif
+└── observing/observing.gif
+```
+
+Quando existe um GIF valido, todos os frames dele sao reproduzidos automaticamente. Se o GIF nao existir, a Marcy tenta carregar GIFs individuais `estado_1.gif`, `estado_2.gif` e usa um placeholder quando eles estiverem ausentes ou vazios.
+
 ## O que foi feito ate agora
 
 ### Base do pet
 
 - Criada a janela desktop da Marcy usando Tkinter.
 - Adicionado movimento automatico pela tela.
-- Adicionada animacao por estado com suporte a frames `idle` e `walk`.
+- Adicionada animacao por estado com suporte a GIFs `idle`, `walk`, `talking`, `thinking` e `observing`.
 - Adicionado fallback visual com o texto "Marcy" quando os sprites ainda nao existem.
 - Corrigida a deteccao de aplicativo ativo no `marcy_pet.py`.
 - Adicionados apps reconhecidos: VS Code, Chrome, Spotify, Discord, Steam, YouTube e GitHub.
@@ -161,11 +185,12 @@ Quando um comando nao e reconhecido como automacao, ele e enviado para o Ollama 
 - O Python do `uv` conseguiu abrir uma janela Tkinter.
 - A Marcy roda pelo comando `./run_marcy.sh`.
 - A Marcy aceita comandos por texto na propria janela.
-- A pasta `sprites/` ainda nao possui os PNGs finais da personagem.
+- A pasta `sprites/` possui GIFs de idle e caminhada; o arquivo de caminhada pode ser separado em `walk-direita.gif` e `walk-esquerda.gif`.
 
 ## O que falta para finalizar
 
-- Adicionar sprites reais em:
+- Adicionar sprites reais em PNG ou GIF, por exemplo:
+  - `sprites/idle/idle.gif` (GIF animado preferencial)
   - `sprites/idle/idle_1.png`
   - `sprites/idle/idle_2.png`
   - `sprites/walk/walk_1.png`
